@@ -1,0 +1,36 @@
+server:
+  port: 8085
+ 
+camel:
+  springboot:
+    name: estafet-microservices-scrum-gateway
+  component:
+    servlet:
+      mapping:
+        enabled: true
+        context-path: "/api/*"
+  hystrix:
+    group-key: CamelHystrix
+    circuit-breaker-enabled: false
+    execution-timeout-enabled: true
+    execution-timeout-in-milliseconds: 100000
+    execution-isolation-strategy: THREAD
+    circuit-breaker-error-threshold-percentage: 10
+    circuit-breaker-request-volume-threshold: 40
+    circuit-breaker-sleep-window-in-milliseconds: 5000
+
+        
+security:
+  basic:
+    enabled: false
+
+management:
+#  port: 8086
+  security:
+    enabled: false
+
+#endpoints:
+#  enabled: false
+#  health:
+#    enabled: true
+
