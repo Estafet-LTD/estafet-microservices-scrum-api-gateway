@@ -1,6 +1,5 @@
 package com.estafet.microservices.gateway.route;
 
-import java.awt.List;
 import java.util.ArrayList;
 
 import org.apache.camel.Exchange;
@@ -11,17 +10,16 @@ import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.component.jackson.ListJacksonDataFormat;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.apache.camel.model.rest.RestParamType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.apache.camel.http.common.HttpMessage;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import com.estafet.microservices.gateway.model.Project;
-import com.netflix.hystrix.exception.HystrixTimeoutException;
 
 @Component
 public class ProjectRoute extends RouteBuilder {
@@ -45,7 +43,7 @@ public class ProjectRoute extends RouteBuilder {
 	
 	@Override
 	public void configure() throws Exception {
-		LOGGER.info("------------------ Initialize and configure /project route");
+		LOGGER.info("-Initialize and configure /project route");
 		
 		try {
 			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
@@ -54,7 +52,6 @@ public class ProjectRoute extends RouteBuilder {
 		}
 		
 		JacksonDataFormat productFormatter = new ListJacksonDataFormat();
-//		productFormatter.setUnmarshalType(Project.class);
 		productFormatter.setUnmarshalType(Object[].class);
 
 		restConfiguration().component("servlet")
@@ -77,9 +74,9 @@ public class ProjectRoute extends RouteBuilder {
 			.requestLogEnabled(true)
 		.end()
 		.removeHeaders("CamelHttp*")
-			.setBody(simple("null"))
-			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-			.setHeader(Exchange.HTTP_URI, simple(projectUrl))
+		.setBody(simple("null"))
+		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+		.setHeader(Exchange.HTTP_URI, simple(projectUrl))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -87,8 +84,35 @@ public class ProjectRoute extends RouteBuilder {
 		.end()
 			.setHeader("CamelJacksonUnmarshalType", simple(Object[].class.getName())).unmarshal()
 			.json(JsonLibrary.Jackson, Object[].class)
+		.endRest()
+		
+		.get("/{id}")
+			.param()
+				.name("projectId")
+				.type(RestParamType.path)
+			.endParam()
+			.outType(Project.class)
+			.route()
+				.id("getProjectById")
+			.hystrix()
+				.id("Get Project By Id")
+			.hystrixConfiguration()
+				.executionTimeoutInMilliseconds(hystrixExecutionTimeout)
+				.groupKey(hystrixGroupKey)
+				.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
+			.end()
+			.removeHeaders("CamelHttp*")
+			.setBody(simple("null"))
+			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/${header.id}"))
+			.to("http4://DUMMY")
+			.onFallback()
+				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+				.to("direct:defaultFallback")
+			.end()
+			.setHeader("CamelJacksonUnmarshalType", simple(Project.class.getName())).unmarshal()
+			.json(JsonLibrary.Jackson, Project.class)
 		.endRest();
-			
 		
 		 // Provide a response
         from("direct:defaultFallback").routeId("defaultfallback")
