@@ -36,6 +36,10 @@ public class ProjectRoute extends RouteBuilder {
 	@Value("${camel.hystrix.execution-timeout-enabled}")
 	private boolean hystrixCircuitBreakerEnabled;
 	
+	
+	@Value("${application.estafet.projectUrl}")
+	private String projectUrl;
+	
 	@Autowired
 	private Environment env;
 	
@@ -75,7 +79,7 @@ public class ProjectRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 			.setBody(simple("null"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-			.setHeader(Exchange.HTTP_URI, simple("http://project-api.microservices-scrum.svc:8080/projects"))
+			.setHeader(Exchange.HTTP_URI, simple(projectUrl))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))

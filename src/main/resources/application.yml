@@ -1,6 +1,11 @@
 #server:
 #  port: 8085
- 
+
+spring:
+  profiles:
+    active:
+    - development
+    
 camel:
   springboot:
     name: estafet-microservices-scrum-gateway
@@ -33,4 +38,20 @@ management:
 #  enabled: false
 #  health:
 #    enabled: true
+  
+application:
+  estafet:
+    projectUrl: http://project-api.microservices-scrum.svc:8080/projects
+    
+    
+---
 
+spring:
+  profiles: development
+  
+server:
+  port: 8085 
+ 
+application:
+  estafet:
+    projectUrl: http://localhost:8086/project

@@ -1,7 +1,14 @@
 package com.estafet.microservices.gateway;
 
+import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.camel.component.hystrix.metrics.servlet.HystrixEventStreamServlet;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.apache.camel.spi.RestConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,8 +36,9 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean() {
-		ServletRegistrationBean registration = new ServletRegistrationBean(new CamelHttpTransportServlet(), CAMEL_URL_MAPPING);
-		
+//		ServletRegistrationBean registration = new ServletRegistrationBean(new CamelHttpTransportServlet(), CAMEL_URL_MAPPING);
+		ServletRegistrationBean registration = new ServletRegistrationBean(new CORSServlet(), CAMEL_URL_MAPPING);
+
 		registration.setName(CAMEL_SERVLET_NAME);
 		
 		return registration;
@@ -42,5 +50,28 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 		
 		return registration;
 	}
+	
+	
+	private class CORSServlet extends CamelHttpTransportServlet {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+        protected void doService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+            String authHeader = request.getHeader("Authorization");
+            String origin = request.getHeader("Origin");
+            if (origin == null || origin.isEmpty()) {
+                origin = "*";
+            }
+
+            response.setHeader("Access-Control-Allow-Origin", origin);
+            response.setHeader("Access-Control-Allow-Methods", RestConfiguration.CORS_ACCESS_CONTROL_ALLOW_METHODS);
+            response.setHeader("Access-Control-Allow-Headers", "Authorization, " + RestConfiguration.CORS_ACCESS_CONTROL_ALLOW_HEADERS);
+            response.setHeader("Access-Control-Max-Age", RestConfiguration.CORS_ACCESS_CONTROL_MAX_AGE);
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+
+            super.doService(request, response);
+        }
+    }
 
 }
