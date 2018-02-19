@@ -1,11 +1,11 @@
 #server:
 #  port: 8085
 
-spring:
-  profiles:
-    active:
-    - development
-    
+#spring:
+#  profiles:
+#    active:
+#    - development
+
 camel:
   springboot:
     name: estafet-microservices-scrum-gateway
