@@ -75,7 +75,7 @@ public class ProjectRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 			.setBody(simple("null"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-			.setHeader(Exchange.HTTP_URI, simple("http://localhost:8086/project"))
+			.setHeader(Exchange.HTTP_URI, simple("http://project-api.microservices-scrum.svc:8080/projects"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
