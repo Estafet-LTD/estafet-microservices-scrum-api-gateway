@@ -62,7 +62,7 @@ public class ProjectRoute extends RouteBuilder {
 		
 		rest("/project")
 			.produces(MediaType.ALL_VALUE)
-		.get("/")
+		.get()
 			.route()
 			.id("getProjectRoute")
 		.hystrix()
