@@ -53,7 +53,7 @@ public class SprintRoute extends RouteBuilder {
 		.contextPath("/api")
 		.bindingMode(RestBindingMode.auto);
 		
-		rest("/spring")
+		rest("/sprint")
 			.produces(MediaType.ALL_VALUE)
 		.get("/sprint/{id}")
 			.param()
