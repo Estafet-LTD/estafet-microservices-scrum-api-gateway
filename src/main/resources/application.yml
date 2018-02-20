@@ -42,7 +42,7 @@ management:
 application:
   estafet:
     projectUrl: http://project-api.microservices-scrum.svc:8080/projects
-    
+    sprintUrl: http://sprint-api.microservices-scrum.svc:8080
     
 ---
 
@@ -55,3 +55,4 @@ server:
 application:
   estafet:
     projectUrl: http://localhost:8086/project
+    sprintUrl:  http://localhost:8088/sprint

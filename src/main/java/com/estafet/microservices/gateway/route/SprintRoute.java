@@ -1,9 +1,6 @@
 package com.estafet.microservices.gateway.route;
 
-import java.util.ArrayList;
-
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http4.HttpMethods;
 import org.apache.camel.component.jackson.JacksonDataFormat;
@@ -19,11 +16,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import com.estafet.microservices.gateway.model.Project;
-
 @Component
-public class ProjectRoute extends RouteBuilder {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectRoute.class);
+public class SprintRoute extends RouteBuilder {
+	private static final Logger LOGGER = LoggerFactory.getLogger(SprintRoute.class);
 
 	@Value("${camel.hystrix.execution-timeout-in-milliseconds}")
 	private int hystrixExecutionTimeout;
@@ -34,16 +29,15 @@ public class ProjectRoute extends RouteBuilder {
 	@Value("${camel.hystrix.execution-timeout-enabled}")
 	private boolean hystrixCircuitBreakerEnabled;
 	
-	
 	@Value("${application.estafet.projectUrl}")
-	private String projectUrl;
+	private String sprintUrl;
 	
 	@Autowired
 	private Environment env;
 	
 	@Override
 	public void configure() throws Exception {
-		LOGGER.info("- Initialize and configure /project route");
+		LOGGER.info("- Initialize and configure /sprint route");
 		
 		try {
 			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
@@ -58,16 +52,19 @@ public class ProjectRoute extends RouteBuilder {
 		.apiContextPath("/api-docs")
 		.contextPath("/api")
 		.bindingMode(RestBindingMode.auto);
-
 		
-		rest("/project")
+		rest("/spring")
 			.produces(MediaType.ALL_VALUE)
-		.get("/")
+		.get("/sprint/{id}")
+			.param()
+				.name("id")
+				.type(RestParamType.path)
+			.endParam()
 			.route()
-			.id("getProjectRoute")
+			.id("getSprintRoute")
 		.hystrix()
-			.id("project")
-		.hystrixConfiguration()
+			.id("Get Sprint By Id")
+			.hystrixConfiguration()
 			.executionTimeoutInMilliseconds(hystrixExecutionTimeout)
 			.groupKey(hystrixGroupKey)
 			.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
@@ -76,7 +73,7 @@ public class ProjectRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-		.setHeader(Exchange.HTTP_URI, simple(projectUrl))
+		.setHeader(Exchange.HTTP_URI, simple(sprintUrl))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -86,45 +83,34 @@ public class ProjectRoute extends RouteBuilder {
 			.json(JsonLibrary.Jackson, Object[].class)
 		.endRest()
 		
-		.get("/{id}")
+		.get("/project/{id}/sprints")
 			.param()
 				.name("id")
 				.type(RestParamType.path)
 			.endParam()
-			.outType(Project.class)
 			.route()
-				.id("getProjectById")
-			.hystrix()
-				.id("Get Project By Id")
+			.id("getProjectSprintsById")
+		.hystrix()
+			.id("Get Project Sprints By Project Id")
 			.hystrixConfiguration()
-				.executionTimeoutInMilliseconds(hystrixExecutionTimeout)
-				.groupKey(hystrixGroupKey)
-				.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
-			.end()
-			.removeHeaders("CamelHttp*")
-			.setBody(simple("null"))
-			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/${header.id}"))
-			.to("http4://DUMMY")
-			.onFallback()
-				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-				.to("direct:defaultFallback")
-			.end()
-			.setHeader("CamelJacksonUnmarshalType", simple(Project.class.getName())).unmarshal()
-			.json(JsonLibrary.Jackson, Project.class)
+			.executionTimeoutInMilliseconds(hystrixExecutionTimeout)
+			.groupKey(hystrixGroupKey)
+			.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
+			.requestLogEnabled(true)
+		.end()
+		.removeHeaders("CamelHttp*")
+		.setBody(simple("null"))
+		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+		.setHeader(Exchange.HTTP_URI, simple(sprintUrl))
+		.to("http4://DUMMY")
+		.onFallback()
+			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+			.to("direct:defaultFallback")
+		.end()
+			.setHeader("CamelJacksonUnmarshalType", simple(Object[].class.getName())).unmarshal()
+			.json(JsonLibrary.Jackson, Object[].class)
 		.endRest();
-		
-		 // Provide a response
-        from("direct:defaultFallback").routeId("defaultfallback")
-        .process(new Processor() {
-        	@Override
-			public void process(Exchange exchange) throws Exception {
-        		Exception cause = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
-        		LOGGER.error(cause.getStackTrace().toString());
-        		exchange.getIn().setBody(new ArrayList<Project>());
-			}
-        })
-        .marshal().json(JsonLibrary.Jackson);
+				
 	}
 
 }
