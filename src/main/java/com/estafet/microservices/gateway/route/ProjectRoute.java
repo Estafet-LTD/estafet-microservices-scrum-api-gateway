@@ -32,8 +32,7 @@ public class ProjectRoute extends RouteBuilder {
 	private String hystrixGroupKey;
 	
 	@Value("${camel.hystrix.execution-timeout-enabled}")
-	private boolean hystrixCircuitBreakerEnabled;
-	
+	private boolean hystrixCircuitBreakerEnabled;	
 	
 	@Value("${application.estafet.projectUrl}")
 	private String projectUrl;
@@ -56,13 +55,12 @@ public class ProjectRoute extends RouteBuilder {
 
 		restConfiguration().component("servlet")
 		.apiContextPath("/api-docs")
-		.contextPath("/api")
 		.bindingMode(RestBindingMode.auto);
 
 		
-		rest("/project")
+		rest("/project-api")
 			.produces(MediaType.ALL_VALUE)
-		.get()
+		.get("/project")
 			.route()
 			.id("getProjectRoute")
 		.hystrix()
@@ -76,7 +74,7 @@ public class ProjectRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-		.setHeader(Exchange.HTTP_URI, simple(projectUrl))
+		.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -86,7 +84,7 @@ public class ProjectRoute extends RouteBuilder {
 			.json(JsonLibrary.Jackson, Object[].class)
 		.endRest()
 		
-		.get("/{id}")
+		.get("/project/{id}")
 			.param()
 				.name("id")
 				.type(RestParamType.path)
@@ -104,7 +102,7 @@ public class ProjectRoute extends RouteBuilder {
 			.removeHeaders("CamelHttp*")
 			.setBody(simple("null"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/${header.id}"))
+			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project/${header.id}"))
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))

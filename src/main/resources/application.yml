@@ -50,5 +50,5 @@ server:
  
 application:
   estafet:
-    projectUrl: http://localhost:8086/project
-    sprintUrl:  http://localhost:8088/sprint
+    projectUrl: http://localhost:8086
+    sprintUrl:  http://localhost:8088

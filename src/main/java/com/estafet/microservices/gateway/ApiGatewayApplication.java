@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Configuration;
 @EnableCircuitBreaker 
 public class ApiGatewayApplication extends SpringBootServletInitializer {
 
-	private static final String CAMEL_URL_MAPPING = "/api/*";
 	private static final String CAMEL_SERVLET_NAME = "CamelServlet";
 	private static final String HYSTRIX_URL_MAPPING = "/hystrix.stream";
 
@@ -36,8 +35,7 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean() {
-//		ServletRegistrationBean registration = new ServletRegistrationBean(new CamelHttpTransportServlet(), CAMEL_URL_MAPPING);
-		ServletRegistrationBean registration = new ServletRegistrationBean(new CORSServlet(), CAMEL_URL_MAPPING);
+		ServletRegistrationBean registration = new ServletRegistrationBean(new CORSServlet());
 
 		registration.setName(CAMEL_SERVLET_NAME);
 		
