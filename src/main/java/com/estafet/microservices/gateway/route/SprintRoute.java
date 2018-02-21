@@ -105,7 +105,7 @@ public class SprintRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-		.setHeader(Exchange.HTTP_URI, simple(sprintUrl))
+		.setHeader(Exchange.HTTP_URI, simple(sprintUrl + "/project/${header.id}/sprints"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
