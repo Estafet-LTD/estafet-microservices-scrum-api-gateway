@@ -56,7 +56,6 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 		@Override
         protected void doService(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-            String authHeader = request.getHeader("Authorization");
             String origin = request.getHeader("Origin");
             if (origin == null || origin.isEmpty()) {
                 origin = "*";

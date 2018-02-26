@@ -8,5 +8,15 @@
     "name": "application.estafet.sprint-url",
     "type": "java.lang.String",
     "description": "A description for 'application.estafet.sprint-url'"
+  },
+  {
+    "name": "application.estafet.story-url",
+    "type": "java.lang.String",
+    "description": "A description for 'application.estafet.story-url'"
+  },
+  {
+    "name": "application.estafet.task-url",
+    "type": "java.lang.String",
+    "description": "A description for 'application.estafet.task-url'"
   }
 ]}

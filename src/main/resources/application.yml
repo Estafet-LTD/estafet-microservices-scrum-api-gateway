@@ -10,7 +10,6 @@ camel:
     servlet:
       mapping:
         enabled: true
-        context-path: "/api/*"
   hystrix:
     group-key: CamelHystrix
     circuit-breaker-enabled: false
@@ -39,7 +38,8 @@ application:
   estafet:
     projectUrl: http://project-api.microservices-scrum.svc:8080
     sprintUrl: http://sprint-api.microservices-scrum.svc:8080
-    
+    storyUrl: http://story-api.microservices-scrum.svc:8080
+    taskUrl: http://task-api.microservices-scrum.svc:8080
 ---
 
 spring:
@@ -52,3 +52,5 @@ application:
   estafet:
     projectUrl: http://localhost:8086
     sprintUrl:  http://localhost:8088
+    storyUrl: http://localhost:8089
+    taskUrl: http://localhost:8090
