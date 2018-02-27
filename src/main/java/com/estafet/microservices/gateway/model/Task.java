@@ -1,21 +1,37 @@
 package com.estafet.microservices.gateway.model;
 
-import java.io.IOException;
+import java.util.concurrent.ThreadLocalRandom;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Task {
 
 	private Integer id;
+
+	private String title;
+
+	private String description;
+
+	private Integer initialHours;
+
+	private Integer remainingHours;
+
 	private String status = "Not Started";
-	private Integer storyId;
-	private Story taskStory;
+
+	private String remainingUpdated;
+
+	private String storyTitle;
+
+	public Task init() {
+		this.title = "Task #" + ThreadLocalRandom.current().nextInt(1, 10000);
+		this.description = title;
+		this.initialHours =  ThreadLocalRandom.current().nextInt(1, 20);
+		return this;
+	}
 	
-	public Task update(Task newTask) {
-		status = newTask.getStatus() != null ? newTask.getStatus() : status;
-		if (status.equals("Completed")) {
-			taskStory.updateStatus();
-		}
+	public Task setRemainingHours(Integer remainingHours) {
+		this.remainingHours = remainingHours;
 		return this;
 	}
 
@@ -23,8 +39,32 @@ public class Task {
 		return id;
 	}
 
-	public Task setStatus(String status) {
-		this.status = status;
+	public String getTitle() {
+		return title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public Integer getInitialHours() {
+		return initialHours;
+	}
+
+	public Integer getRemainingHours() {
+		return remainingHours;
+	}
+
+	public String getRemainingUpdated() {
+		return remainingUpdated;
+	}
+
+	public String getStoryTitle() {
+		return storyTitle;
+	}
+
+	public Task setRemainingUpdated(String remainingUpdated) {
+		this.remainingUpdated = remainingUpdated;
 		return this;
 	}
 
@@ -32,54 +72,19 @@ public class Task {
 		return status;
 	}
 
-	public Story getTaskStory() {
-		return taskStory;
-	}
-
-	Task setTaskStory(Story taskStory) {
-		this.taskStory = taskStory;
+	public Task setTitle(String title) {
+		this.title = title;
 		return this;
 	}
 
-	public Integer getStoryId() {
-		return storyId;
+	public Task setDescription(String description) {
+		this.description = description;
+		return this;
 	}
 
-	public void setStoryId(Integer storyId) {
-		this.storyId = storyId;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Task other = (Task) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-	
-	public static Task fromJSON(String message) {
-		try {
-			return new ObjectMapper().readValue(message, Task.class);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+	public Task setInitialHours(Integer initialHours) {
+		this.initialHours = initialHours;
+		return this;
 	}
 
 }
