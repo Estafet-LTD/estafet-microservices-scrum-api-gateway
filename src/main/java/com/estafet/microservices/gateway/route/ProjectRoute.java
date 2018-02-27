@@ -3,11 +3,8 @@ package com.estafet.microservices.gateway.route;
 import java.util.ArrayList;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http4.HttpMethods;
-import org.apache.camel.component.jackson.JacksonDataFormat;
-import org.apache.camel.component.jackson.ListJacksonDataFormat;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestParamType;
@@ -49,9 +46,6 @@ public class ProjectRoute extends RouteBuilder {
 		} catch (Exception e) {
 			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER", "false"));
 		}
-		
-		JacksonDataFormat productFormatter = new ListJacksonDataFormat();
-		productFormatter.setUnmarshalType(Object[].class);
 
 		restConfiguration().component("servlet")
 		.apiContextPath("/api-docs")
@@ -59,7 +53,38 @@ public class ProjectRoute extends RouteBuilder {
 
 		
 		rest("/project-api")
-			.produces(MediaType.ALL_VALUE)
+			.produces(MediaType.APPLICATION_JSON_VALUE)
+			
+		//Create new project
+		.post("/project")
+			.type(Project.class)
+			.route()
+				.id("CreateNewProject")
+			.hystrix()
+				.id("Create new Project")
+			.hystrixConfiguration()
+				.executionTimeoutInMilliseconds(hystrixExecutionTimeout)
+				.groupKey(hystrixGroupKey)
+				.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
+			.end()
+			.removeHeaders("CamelHttp*")
+			.process((exchange)->{
+				Project project = (Project) exchange.getIn().getBody();
+				exchange.getIn().setBody(project.toJSON().getBytes());
+			})
+			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
+			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project"))
+			.to("http4://DUMMY")
+			.onFallback()
+				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+				.to("direct:defaultProjectFallback")
+			.end()
+			.setHeader("CamelJacksonUnmarshalType", simple(Project.class.getName())).unmarshal()
+			.json(JsonLibrary.Jackson, Project.class)
+		.endRest()
+		
+		//Get All Projects
 		.get("/project")
 			.route()
 			.id("getProjectRoute")
@@ -72,16 +97,15 @@ public class ProjectRoute extends RouteBuilder {
 			.requestLogEnabled(true)
 		.end()
 		.removeHeaders("CamelHttp*")
-		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-			.to("direct:defaultFallback")
+			.to("direct:defaultListOfProjectsFallback")
 		.end()
-			.setHeader("CamelJacksonUnmarshalType", simple(Object[].class.getName())).unmarshal()
-			.json(JsonLibrary.Jackson, Object[].class)
+		.setHeader("CamelJacksonUnmarshalType", simple(Project[].class.getName())).unmarshal()
+		.json(JsonLibrary.Jackson, Project[].class)
 		.endRest()
 		
 		.get("/project/{id}")
@@ -89,7 +113,6 @@ public class ProjectRoute extends RouteBuilder {
 				.name("id")
 				.type(RestParamType.path)
 			.endParam()
-			.outType(Project.class)
 			.route()
 				.id("getProjectById")
 			.hystrix()
@@ -100,29 +123,32 @@ public class ProjectRoute extends RouteBuilder {
 				.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
 			.end()
 			.removeHeaders("CamelHttp*")
-			.setBody(simple("null"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project/${header.id}"))
 			.to("http4://DUMMY")
 			.onFallback()
-				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-				.to("direct:defaultFallback")
+				.to("direct:defaultProjectFallback")
 			.end()
 			.setHeader("CamelJacksonUnmarshalType", simple(Project.class.getName())).unmarshal()
 			.json(JsonLibrary.Jackson, Project.class)
 		.endRest();
-		
-		 // Provide a response
-        from("direct:defaultFallback").routeId("defaultfallback")
-        .process(new Processor() {
-        	@Override
-			public void process(Exchange exchange) throws Exception {
-        		Exception cause = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
-        		LOGGER.error(cause.getStackTrace().toString());
-        		exchange.getIn().setBody(new ArrayList<Project>());
-			}
-        })
-        .marshal().json(JsonLibrary.Jackson);
-	}
 
+		
+		 // Default fallback returns empty list of projects
+	    from("direct:defaultListOfProjectsFallback").routeId("defaultListOfProjectsFallback")
+	    .process((exchange)->{
+			Exception cause = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+			LOGGER.error("Hystrix Default fallback. Empty list of project returned", cause);
+			exchange.getIn().setBody(new ArrayList<Project>());
+		}).marshal().json(JsonLibrary.Jackson);
+	    
+		 // Default fallback returns empty project
+	    from("direct:defaultProjectFallback").routeId("defaultProjectFallback")
+	    .process((exchange)->{
+			Exception cause = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+			LOGGER.error("Hystrix Default fallback. Empty project returned", cause);
+			exchange.getIn().setBody(new Project());
+	    }).marshal().json(JsonLibrary.Jackson);
+
+	}
 }
