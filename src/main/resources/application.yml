@@ -12,7 +12,7 @@ camel:
         enabled: true
   hystrix:
     group-key: CamelHystrix
-    circuit-breaker-enabled: false
+    circuit-breaker-enabled: true
     execution-timeout-enabled: true
     execution-timeout-in-milliseconds: 100000
     execution-isolation-strategy: THREAD
