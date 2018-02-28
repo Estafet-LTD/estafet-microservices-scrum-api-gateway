@@ -35,7 +35,7 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean() {
-		ServletRegistrationBean registration = new ServletRegistrationBean(new CORSServlet());
+		ServletRegistrationBean registration = new ServletRegistrationBean(new CamelHttpTransportServlet());
 
 		registration.setName(CAMEL_SERVLET_NAME);
 		
