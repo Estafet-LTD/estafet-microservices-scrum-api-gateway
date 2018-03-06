@@ -72,7 +72,14 @@ public class SprintRoute extends RouteBuilder {
 		.end()
 		.removeHeaders("CamelHttp*")
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(sprintUrl + "/sprint/${header.id}"))
+		.process((exchange) -> {
+			//Handle empty "" result, due to Jackson parser issue
+			if(exchange.getIn().getBody().equals("")) {
+				exchange.getIn().setBody(new Sprint());
+			}
+		})
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -100,7 +107,14 @@ public class SprintRoute extends RouteBuilder {
 		.end()
 		.removeHeaders("CamelHttp*")
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(sprintUrl + "/project/${header.id}/sprints"))
+		.process((exchange) -> {
+			//Handle empty "" result, due to Jackson parser issue
+			if(exchange.getIn().getBody().equals("")) {
+				exchange.getIn().setBody(new ArrayList<Sprint>());
+			}
+		})
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
