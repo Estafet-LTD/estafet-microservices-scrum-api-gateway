@@ -36,7 +36,7 @@ public class ProjectRoute extends RouteBuilder {
 	
 	@Autowired
 	private Environment env;
-	
+    
 	@Override
 	public void configure() throws Exception {
 		LOGGER.info("- Initialize and configure /project route");
@@ -124,9 +124,11 @@ public class ProjectRoute extends RouteBuilder {
 			.end()
 			.removeHeaders("CamelHttp*")
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project/${header.id}"))
 			.to("http4://DUMMY")
 			.onFallback()
+				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 				.to("direct:defaultProjectFallback")
 			.end()
 			.setHeader("CamelJacksonUnmarshalType", simple(Project.class.getName())).unmarshal()

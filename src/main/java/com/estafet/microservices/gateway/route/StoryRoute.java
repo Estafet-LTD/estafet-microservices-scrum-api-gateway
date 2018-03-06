@@ -76,8 +76,8 @@ public class StoryRoute extends RouteBuilder {
 				Story story = (Story) exchange.getIn().getBody();
 				exchange.getIn().setBody(story.toJSON().getBytes());
 			})
-			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
+			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/story"))
 			.to("http4://DUMMY")
 			.onFallback()
@@ -107,6 +107,7 @@ public class StoryRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/story/${header.id}"))
 		.to("http4://DUMMY")
 		.onFallback()
@@ -136,6 +137,7 @@ public class StoryRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/stories"))
 		.to("http4://DUMMY")
 		.onFallback()
