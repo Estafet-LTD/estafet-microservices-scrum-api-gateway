@@ -72,10 +72,6 @@ public class StoryRoute extends RouteBuilder {
 				.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
 			.end()
 			.removeHeaders("CamelHttp*")
-			.process((exchange)->{
-				Story story = (Story) exchange.getIn().getBody();
-				exchange.getIn().setBody(story.toJSON().getBytes());
-			})
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/story"))
@@ -109,12 +105,6 @@ public class StoryRoute extends RouteBuilder {
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/story/${header.id}"))
-		.process((exchange) -> {
-			//Handle empty "" result, due to Jackson parser issue
-			if(exchange.getIn().getBody().equals("")) {
-				exchange.getIn().setBody(new Story());
-			}
-		})
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -145,12 +135,6 @@ public class StoryRoute extends RouteBuilder {
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/stories"))
-		.process((exchange) -> {
-			//Handle empty "" result, due to Jackson parser issue
-			if(exchange.getIn().getBody().equals("")) {
-				exchange.getIn().setBody(new ArrayList<Story>());
-			}
-		})
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))

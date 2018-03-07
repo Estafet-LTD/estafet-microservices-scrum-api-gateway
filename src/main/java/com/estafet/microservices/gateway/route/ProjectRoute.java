@@ -100,12 +100,6 @@ public class ProjectRoute extends RouteBuilder {
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 		.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project"))
-		.process((exchange) -> {
-			//Handle empty "" result, due to Jackson parser issue
-			if(exchange.getIn().getBody().equals("")) {
-				exchange.getIn().setBody(new ArrayList<Project>());
-			}
-		})
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -133,12 +127,6 @@ public class ProjectRoute extends RouteBuilder {
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project/${header.id}"))
-			.process((exchange) -> {
-				//Handle empty "" result, due to Jackson parser issue
-				if(exchange.getIn().getBody().equals("")) {
-					exchange.getIn().setBody(new Project());
-				}
-			})
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
