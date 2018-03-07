@@ -72,6 +72,10 @@ public class StoryRoute extends RouteBuilder {
 				.circuitBreakerEnabled(hystrixCircuitBreakerEnabled)
 			.end()
 			.removeHeaders("CamelHttp*")
+			.process((exchange)->{
+				Story story = (Story) exchange.getIn().getBody();
+				exchange.getIn().setBody(story.toJSON().getBytes());
+			})
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/story"))
