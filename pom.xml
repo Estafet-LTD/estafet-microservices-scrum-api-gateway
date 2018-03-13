@@ -23,7 +23,20 @@
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 		<camel.version>2.19.1</camel.version>
 		<spring-boot-starter.version>1.5.4.RELEASE</spring-boot-starter.version>
+		<spring.cloud.version>Camden.SR7</spring.cloud.version>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring.cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -72,12 +85,19 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-hystrix</artifactId>
-			<version>1.4.2.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>com.netflix.archaius</groupId>
 			<artifactId>archaius-core</artifactId>
-			<version>0.7.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-eureka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -103,6 +123,23 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<requiresUnpack>
+						<dependency>
+							<groupId>com.netflix.eureka</groupId>
+							<artifactId>eureka-core</artifactId>
+						</dependency>
+						<dependency>
+							<groupId>com.netflix.eureka</groupId>
+							<artifactId>eureka-client</artifactId>
+						</dependency>
+					</requiresUnpack>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
