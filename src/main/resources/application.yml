@@ -1,8 +1,9 @@
-#spring:
+spring:
+  application:
+    name: gateway
 #  profiles:
 #    active:
-#    - development
-
+#    - development 
 camel:
   springboot:
     name: estafet-microservices-scrum-gateway
@@ -14,7 +15,7 @@ camel:
     group-key: CamelHystrix
     circuit-breaker-enabled: true
     execution-timeout-enabled: true
-    execution-timeout-in-milliseconds: 300000
+    execution-timeout-in-milliseconds: 500
     execution-isolation-strategy: THREAD
     circuit-breaker-error-threshold-percentage: 10
     circuit-breaker-request-volume-threshold: 40
