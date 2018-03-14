@@ -22,7 +22,7 @@ camel:
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_URI:http://localhost:8090/eureka}
+      defaultZone: ${EUREKA_URI:http://discovery-client.microservices-scrum.svc:8080/eureka}
   instance:
     preferIpAddress: true
       
