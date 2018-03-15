@@ -46,10 +46,9 @@ public class ProjectRoute extends RouteBuilder {
 	public void configure() throws Exception {
 		LOGGER.info("- Initialize and configure /project route");
 		
-		ServiceInstance projectServiceinstace = loadBalancer.choose("project-api");
-		
+		ServiceInstance projectServiceinstace = loadBalancer.choose("project-api");		
 		setProjectUrl(String.format("http://%s",projectServiceinstace.getUri().toString()));
-		
+
 		LOGGER.info(String.format("Project Routed Load Balanced URL: %s", getProjectUrl()));
 		try {
 			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
