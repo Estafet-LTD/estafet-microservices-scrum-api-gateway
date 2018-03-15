@@ -12,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,12 @@ import com.estafet.microservices.gateway.model.Project;
 public class ProjectRoute extends RouteBuilder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectRoute.class);
 
+	@Autowired
+	private Environment env;
+
+	@Autowired
+	private LoadBalancerClient loadBalancer;
+	
 	@Value("${camel.hystrix.execution-timeout-in-milliseconds}")
 	private int hystrixExecutionTimeout;
 	
@@ -32,21 +39,18 @@ public class ProjectRoute extends RouteBuilder {
 	@Value("${camel.hystrix.execution-timeout-enabled}")
 	private boolean hystrixCircuitBreakerEnabled;	
 	
-	@Value("${application.estafet.projectUrl}")
+//	@Value("${application.estafet.projectUrl}")
 	private String projectUrl;
-	
-	@Autowired
-	private Environment env;
-	
-	@Autowired
-	private DiscoveryClient discoveryService;
-	
+
 	@Override
 	public void configure() throws Exception {
 		LOGGER.info("- Initialize and configure /project route");
 		
-		discoveryService.getInstances("project-api").parallelStream().forEach(x -> { System.out.println(x.getUri());});
+		ServiceInstance projectServiceinstace = loadBalancer.choose("project-api");
 		
+		setProjectUrl(String.format("http://%s",projectServiceinstace.getUri().toString()));
+		
+		LOGGER.info(String.format("Project Routed Load Balanced URL: %s", getProjectUrl()));
 		try {
 			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
 		} catch (Exception e) {
@@ -56,15 +60,16 @@ public class ProjectRoute extends RouteBuilder {
 		restConfiguration().component("servlet")
 		.apiContextPath("/api-docs")
 		.bindingMode(RestBindingMode.auto);
-
+		
 		rest("/project-api")
 			.produces(MediaType.APPLICATION_JSON_VALUE)
-			
+		
 		//Create new project
 		.post("/project")
 			.type(Project.class)
 			.route()
 				.id("CreateNewProject")
+//			.loadBalance().roundRobin().to(projectInstances)
 			.hystrix()
 				.id("Create new Project")
 			.hystrixConfiguration()
@@ -91,8 +96,9 @@ public class ProjectRoute extends RouteBuilder {
 		
 		//Get All Projects
 		.get("/project")
-			.route()
+		.route()
 			.id("getProjectRoute")
+//		.loadBalance().roundRobin().to(projectInstances)
 		.hystrix()
 			.id("project")
 		.hystrixConfiguration()
@@ -121,6 +127,7 @@ public class ProjectRoute extends RouteBuilder {
 			.endParam()
 			.route()
 				.id("getProjectById")
+//			.loadBalance().roundRobin().to(projectInstances)
 			.hystrix()
 				.id("Get Project By Id")
 			.hystrixConfiguration()
@@ -158,5 +165,15 @@ public class ProjectRoute extends RouteBuilder {
 			exchange.getIn().setBody(new Project());
 	    }).marshal().json(JsonLibrary.Jackson);
 
+	}
+	
+	//Generated Getters And Setters
+	
+	public String getProjectUrl() {
+		return projectUrl;
+	}
+
+	private void setProjectUrl(String projectUrl) {
+		this.projectUrl = projectUrl;
 	}
 }
