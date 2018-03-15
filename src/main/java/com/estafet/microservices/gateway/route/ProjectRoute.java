@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -36,10 +37,15 @@ public class ProjectRoute extends RouteBuilder {
 	
 	@Autowired
 	private Environment env;
-    
+	
+	@Autowired
+	private DiscoveryClient discoveryService;
+	
 	@Override
 	public void configure() throws Exception {
 		LOGGER.info("- Initialize and configure /project route");
+		
+		discoveryService.getInstances("project-api").parallelStream().forEach(x -> { System.out.println(x.getUri());});
 		
 		try {
 			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
@@ -51,7 +57,6 @@ public class ProjectRoute extends RouteBuilder {
 		.apiContextPath("/api-docs")
 		.bindingMode(RestBindingMode.auto);
 
-		
 		rest("/project-api")
 			.produces(MediaType.APPLICATION_JSON_VALUE)
 			
