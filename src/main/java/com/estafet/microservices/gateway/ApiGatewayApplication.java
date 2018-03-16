@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 @EnableAutoConfiguration
 @EnableCircuitBreaker 
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	private static final String CAMEL_SERVLET_NAME = "CamelServlet";

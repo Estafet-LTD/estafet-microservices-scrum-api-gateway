@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import com.estafet.microservices.gateway.model.Story;
+import com.estafet.microservices.gateway.service.DiscoveryStewardService;
 
 @Component
 public class StoryRoute extends RouteBuilder {
@@ -32,8 +33,8 @@ public class StoryRoute extends RouteBuilder {
 	@Value("${camel.hystrix.execution-timeout-enabled}")
 	private boolean hystrixCircuitBreakerEnabled;
 	
-	@Value("${application.services.story-api}")
-	private String storyUrl;
+	@Autowired
+	private DiscoveryStewardService discoveryStewardService;
 	
 	@Autowired
 	private Environment env;
@@ -78,7 +79,7 @@ public class StoryRoute extends RouteBuilder {
 			})
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-			.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/story"))
+			.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("story-api") + "/project/${header.id}/story"))
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -108,7 +109,7 @@ public class StoryRoute extends RouteBuilder {
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-		.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/story/${header.id}"))
+		.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("story-api") + "/story/${header.id}"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -138,7 +139,7 @@ public class StoryRoute extends RouteBuilder {
 		.setBody(simple("null"))
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-		.setHeader(Exchange.HTTP_URI, simple(storyUrl + "/project/${header.id}/stories"))
+		.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("story-api") + "/project/${header.id}/stories"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
