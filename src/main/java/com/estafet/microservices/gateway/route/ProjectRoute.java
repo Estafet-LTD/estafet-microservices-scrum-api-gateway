@@ -12,13 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 import com.estafet.microservices.gateway.model.Project;
+import com.estafet.microservices.gateway.service.DiscoveryStewardService;
 
 @Component
 public class ProjectRoute extends RouteBuilder {
@@ -27,9 +26,6 @@ public class ProjectRoute extends RouteBuilder {
 	@Autowired
 	private Environment env;
 
-	@Autowired
-	private LoadBalancerClient loadBalancer;
-	
 	@Value("${camel.hystrix.execution-timeout-in-milliseconds}")
 	private int hystrixExecutionTimeout;
 	
@@ -37,19 +33,15 @@ public class ProjectRoute extends RouteBuilder {
 	private String hystrixGroupKey;
 	
 	@Value("${camel.hystrix.execution-timeout-enabled}")
-	private boolean hystrixCircuitBreakerEnabled;	
+	private boolean hystrixCircuitBreakerEnabled;
 	
-//	@Value("${application.estafet.projectUrl}")
-	private String projectUrl;
-
+	@Autowired
+	private DiscoveryStewardService discoveryStewardService;
+	
 	@Override
 	public void configure() throws Exception {
 		LOGGER.info("- Initialize and configure /project route");
-		
-		ServiceInstance projectServiceinstace = loadBalancer.choose("project-api");		
-		setProjectUrl(String.format("http://%s",projectServiceinstace.getUri().toString()));
 
-		LOGGER.info(String.format("Project Routed Load Balanced URL: %s", getProjectUrl()));
 		try {
 			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
 		} catch (Exception e) {
@@ -68,7 +60,6 @@ public class ProjectRoute extends RouteBuilder {
 			.type(Project.class)
 			.route()
 				.id("CreateNewProject")
-//			.loadBalance().roundRobin().to(projectInstances)
 			.hystrix()
 				.id("Create new Project")
 			.hystrixConfiguration()
@@ -83,7 +74,7 @@ public class ProjectRoute extends RouteBuilder {
 			})
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
-			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project"))
+			.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("project-api") + "/project"))
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -97,7 +88,6 @@ public class ProjectRoute extends RouteBuilder {
 		.get("/project")
 		.route()
 			.id("getProjectRoute")
-//		.loadBalance().roundRobin().to(projectInstances)
 		.hystrix()
 			.id("project")
 		.hystrixConfiguration()
@@ -109,7 +99,7 @@ public class ProjectRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-		.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project"))
+		.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("project-api") + "/project"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -126,7 +116,6 @@ public class ProjectRoute extends RouteBuilder {
 			.endParam()
 			.route()
 				.id("getProjectById")
-//			.loadBalance().roundRobin().to(projectInstances)
 			.hystrix()
 				.id("Get Project By Id")
 			.hystrixConfiguration()
@@ -137,7 +126,7 @@ public class ProjectRoute extends RouteBuilder {
 			.removeHeaders("CamelHttp*")
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-			.setHeader(Exchange.HTTP_URI, simple(projectUrl + "/project/${header.id}"))
+			.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("project-api") + "/project/${header.id}"))
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -164,15 +153,5 @@ public class ProjectRoute extends RouteBuilder {
 			exchange.getIn().setBody(new Project());
 	    }).marshal().json(JsonLibrary.Jackson);
 
-	}
-	
-	//Generated Getters And Setters
-	
-	public String getProjectUrl() {
-		return projectUrl;
-	}
-
-	private void setProjectUrl(String projectUrl) {
-		this.projectUrl = projectUrl;
 	}
 }

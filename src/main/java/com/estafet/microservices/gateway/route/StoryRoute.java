@@ -32,7 +32,7 @@ public class StoryRoute extends RouteBuilder {
 	@Value("${camel.hystrix.execution-timeout-enabled}")
 	private boolean hystrixCircuitBreakerEnabled;
 	
-	@Value("${application.estafet.storyUrl}")
+	@Value("${application.services.story-api}")
 	private String storyUrl;
 	
 	@Autowired

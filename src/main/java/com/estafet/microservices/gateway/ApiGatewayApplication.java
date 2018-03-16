@@ -2,12 +2,10 @@ package com.estafet.microservices.gateway;
 
 import java.io.IOException;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.camel.component.hystrix.metrics.servlet.HystrixEventStreamServlet;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
 import org.apache.camel.spi.RestConfiguration;
 import org.springframework.boot.SpringApplication;

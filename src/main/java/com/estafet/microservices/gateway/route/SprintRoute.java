@@ -31,7 +31,7 @@ public class SprintRoute extends RouteBuilder {
 	@Value("${camel.hystrix.execution-timeout-enabled}")
 	private boolean hystrixCircuitBreakerEnabled;
 		
-	@Value("${application.estafet.sprintUrl}")
+	@Value("${application.services.sprint-api}")
 	private String sprintUrl;
 	
 	@Autowired
