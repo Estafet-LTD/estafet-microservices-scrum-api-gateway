@@ -6,7 +6,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.camel.component.hystrix.metrics.servlet.HystrixEventStreamServlet;
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
 import org.apache.camel.spi.RestConfiguration;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan
 @EnableAutoConfiguration
 @EnableCircuitBreaker 
+//@EnableDiscoveryClient
 public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	private static final String CAMEL_SERVLET_NAME = "CamelServlet";
@@ -42,12 +43,12 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 		return registration;
 	}
 
-	@Bean
-	public ServletRegistrationBean metricsServlet() {
-		ServletRegistrationBean registration = new ServletRegistrationBean(new HystrixEventStreamServlet(), HYSTRIX_URL_MAPPING);
-		
-		return registration;
-	}
+//	@Bean
+//	public ServletRegistrationBean metricsServlet() {
+//		ServletRegistrationBean registration = new ServletRegistrationBean((Servlet) new HystrixEventStreamServlet(), HYSTRIX_URL_MAPPING);
+//		
+//		return registration;
+//	}
 	
 	
 	private class CORSServlet extends CamelHttpTransportServlet {

@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: gateway
+#  cloud: 
+#    kubernetes:
+#      discovery:
+#        enabled: ${SPRING_CLOUD_KUBERNETES_DISCOVERY_ENABLED:false}

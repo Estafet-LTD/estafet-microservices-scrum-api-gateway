@@ -1,26 +1,34 @@
 #spring:
 #  profiles:
-#    active:
-#    - development
-
+#      active:
+#      - development
+       
 camel:
   springboot:
     name: estafet-microservices-scrum-gateway
   component:
     servlet:
       mapping:
-        enabled: true
+        enabled: true 
   hystrix:
     group-key: CamelHystrix
     circuit-breaker-enabled: true
     execution-timeout-enabled: true
-    execution-timeout-in-milliseconds: 300000
+    execution-timeout-in-milliseconds: 500
     execution-isolation-strategy: THREAD
     circuit-breaker-error-threshold-percentage: 10
     circuit-breaker-request-volume-threshold: 40
     circuit-breaker-sleep-window-in-milliseconds: 5000
 
-        
+eureka:
+  client:
+    healthCheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://discovery.microservices-scrum.svc:8080/eureka}
+  instance:
+    preferIpAddress: true
+      
 security:
   basic:
     enabled: false
@@ -35,22 +43,32 @@ management:
 #    enabled: true
   
 application:
-  estafet:
-    projectUrl: http://project-api.microservices-scrum.svc:8080
-    sprintUrl: http://sprint-api.microservices-scrum.svc:8080
-    storyUrl: http://story-api.microservices-scrum.svc:8080
-    taskUrl: http://task-api.microservices-scrum.svc:8080
+  services:
+    project-api: http://project-api.microservices-scrum.svc:8080
+    sprint-api: http://sprint-api.microservices-scrum.svc:8080
+    story-api: http://story-api.microservices-scrum.svc:8080
+    task-api: http://task-api.microservices-scrum.svc:8080
 ---
 
 spring:
   profiles: development
-  
+
+
+eureka:
+  client:
+    healthCheck: 
+      enabled: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8090/eureka}
+  instance:
+    preferIpAddress: true
+     
 server:
   port: 8085 
  
 application:
-  estafet:
-    projectUrl: http://localhost:8086
-    sprintUrl:  http://localhost:8088
-    storyUrl: http://localhost:8089
-    taskUrl: http://localhost:8090
+  services:
+    project-api: http://localhost:8086
+    sprint-api:  http://localhost:8088
+    story-api: http://localhost:8089
+    task-api: http://localhost:8090
