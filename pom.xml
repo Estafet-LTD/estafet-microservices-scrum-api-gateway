@@ -104,6 +104,26 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>io.opentracing.contrib</groupId>
+			<artifactId>opentracing-spring-web-autoconfigure</artifactId>
+			<version>0.0.10</version>
+		</dependency>
+		<dependency>
+			<groupId>com.uber.jaeger</groupId>
+			<artifactId>jaeger-core</artifactId>
+			<version>0.21.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.opentracing.brave</groupId>
+			<artifactId>brave-opentracing</artifactId>
+			<version>0.22.1</version>
+		</dependency>
+		<dependency>
+	      <groupId>org.apache.camel</groupId>
+	      <artifactId>camel-opentracing-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
