@@ -129,6 +129,11 @@
 		    <artifactId>camel-example-opentracing-loggingtracer</artifactId>
 		    <version>${opentracing.version}</version>
 		</dependency>
+		<dependency> 
+			<groupId>com.uber.jaeger</groupId> 
+			<artifactId>jaeger-core</artifactId> 
+			<version>0.21.0</version> 
+		</dependency>
 	<!--
 		<dependency>
 			<groupId>org.apache.camel</groupId>
@@ -141,11 +146,7 @@
 			<version>0.2.0</version> 
 			<scope>provided</scope>
 		</dependency>
-		<dependency> 
-			<groupId>com.uber.jaeger</groupId> 
-			<artifactId>jaeger-core</artifactId> 
-			<version>0.21.0</version> 
-		</dependency>
+
 	--> 
 	</dependencies>
 

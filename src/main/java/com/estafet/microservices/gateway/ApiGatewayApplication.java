@@ -38,13 +38,13 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 		SpringApplication.run(ApiGatewayApplication.class, args);
 	}
 	
-//	@Bean
-//	public io.opentracing.Tracer jaegerTracer() {
-//		return new com.uber.jaeger.Configuration("gateway",
-//				com.uber.jaeger.Configuration.SamplerConfiguration.fromEnv(),
-//				com.uber.jaeger.Configuration.ReporterConfiguration.fromEnv())
-//				.getTracer();
-//	}
+	@Bean
+	public io.opentracing.Tracer jaegerTracer() {
+		return new com.uber.jaeger.Configuration("gateway",
+				com.uber.jaeger.Configuration.SamplerConfiguration.fromEnv(),
+				com.uber.jaeger.Configuration.ReporterConfiguration.fromEnv())
+				.getTracer();
+	}
 
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean() {
