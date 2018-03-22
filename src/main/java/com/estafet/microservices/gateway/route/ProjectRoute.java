@@ -16,7 +16,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import com.estafet.microservices.gateway.config.ApplicationProperties;
 import com.estafet.microservices.gateway.model.Project;
 import com.estafet.microservices.gateway.service.DiscoveryStewardService;
 
@@ -38,19 +37,15 @@ public class ProjectRoute extends RouteBuilder {
 	
 	@Autowired
 	private DiscoveryStewardService discoveryStewardService;
-	
-	@Autowired
-	private ApplicationProperties applicationProperties;
-	
+
 	@Override
 	public void configure() throws Exception {
 		LOGGER.info("- Initialize and configure /project route");
 
 		try {
-//			env.getProperty("ENABLE_TRACER", "true")
-			getContext().setTracing(true);	
+			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER")));	
 		} catch (Exception e) {
-			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER", "false"));
+			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER"));
 		}
 
 		restConfiguration().component("servlet")
@@ -79,7 +74,7 @@ public class ProjectRoute extends RouteBuilder {
 			})
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.POST)
-			.setHeader(Exchange.HTTP_URI, simple(applicationProperties.findServiceUriByName("project-api") + "/project"))
+			.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("project-api") + "/project"))
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -104,7 +99,7 @@ public class ProjectRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-		.setHeader(Exchange.HTTP_URI, simple(applicationProperties.findServiceUriByName("project-api") + "/project"))
+		.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("project-api") + "/project"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -131,7 +126,7 @@ public class ProjectRoute extends RouteBuilder {
 			.removeHeaders("CamelHttp*")
 			.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-			.setHeader(Exchange.HTTP_URI, simple(applicationProperties.findServiceUriByName("project-api") + "/project/${header.id}"))
+			.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("project-api") + "/project/${header.id}"))
 			.to("http4://DUMMY")
 			.onFallback()
 				.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))

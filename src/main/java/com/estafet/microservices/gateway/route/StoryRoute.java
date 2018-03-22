@@ -44,9 +44,9 @@ public class StoryRoute extends RouteBuilder {
 		LOGGER.info("- Initialize and configure /story route");
 		
 		try {
-			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
+			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER")));	
 		} catch (Exception e) {
-			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER", "false"));
+			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER"));
 		}
 
 		restConfiguration().component("servlet")
