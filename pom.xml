@@ -22,6 +22,7 @@
 		<maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 		<camel.version>2.19.1</camel.version>
+		<opentracing.version>2.19.4</opentracing.version>
 		<spring-boot-starter.version>1.5.4.RELEASE</spring-boot-starter.version>
 		<spring.cloud.version>Camden.SR7</spring.cloud.version>
 	</properties>
@@ -104,26 +105,48 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
+
+		<!-- <dependency> 
+				<groupId>io.opentracing.contrib</groupId> 
+				<artifactId>opentracing-spring-web-autoconfigure</artifactId> 
+				<version>0.0.10</version> 
+			</dependency>
+			
+			<dependency> 
+				<groupId>io.opentracing.brave</groupId> 
+				<artifactId>brave-opentracing</artifactId> 
+				<version>0.22.1</version> 
+			</dependency>
+		--> 
+		<dependency> 
+			<groupId>org.apache.camel</groupId> 
+			<artifactId>camel-opentracing-starter</artifactId>
+			 <version>${camel.version}</version> 
+		</dependency>
+
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-example-opentracing-loggingtracer</artifactId>
+		    <version>${opentracing.version}</version>
+		</dependency>
+	<!--
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-opentracing</artifactId>
+			<version>${camel.version}</version> 
+		</dependency>
 		<dependency>
 			<groupId>io.opentracing.contrib</groupId>
-			<artifactId>opentracing-spring-web-autoconfigure</artifactId>
-			<version>0.0.10</version>
+			<artifactId>opentracing-agent</artifactId>
+			<version>0.2.0</version> 
+			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.uber.jaeger</groupId>
-			<artifactId>jaeger-core</artifactId>
-			<version>0.21.0</version>
+		<dependency> 
+			<groupId>com.uber.jaeger</groupId> 
+			<artifactId>jaeger-core</artifactId> 
+			<version>0.21.0</version> 
 		</dependency>
-		<dependency>
-			<groupId>io.opentracing.brave</groupId>
-			<artifactId>brave-opentracing</artifactId>
-			<version>0.22.1</version>
-		</dependency>
-		<dependency>
-	      <groupId>org.apache.camel</groupId>
-	      <artifactId>camel-opentracing-starter</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
+	--> 
 	</dependencies>
 
 	<build>
@@ -149,7 +172,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
