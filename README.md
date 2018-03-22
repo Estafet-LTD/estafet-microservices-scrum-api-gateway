@@ -11,12 +11,64 @@ Each microservice has it's own git repository, but there is a master git reposit
 ## Getting Started
 You can find a detailed explanation of how to install this (and other microservices) [here](https://github.com/Estafet-LTD/estafet-microservices-scrum#getting-started).
 
+## Supported Camel Routes
+
+### Project Microservice
+
+
+To retrieve all of the projects
+```
+GET http://localhost/project-api/project
+```
+
+To retrieve project with specific id
+```
+GET http://localhost/project-api/project/id
+```
+
+To create a new project
+```
+POST http://localhost/project-api/project
+```
+
+### Sprint Microservice
+
+
+To retrieve sprint with specific id
+```
+GET http://localhost/sprint-api/sprint/id
+```
+
+To retrieve all project sprints by passing project id
+```
+GET http://localhost/sprint-api/project/{id}/sprints
+```
+
+### Story Microservice
+
+
+To retrieve specific story by passing story id
+```
+GET http://localhost/story-api/story/id
+```
+
+To retrieve all project stories by passing project id
+```
+GET http://localhost/story-api/project/{id}/stories
+```
+
+To create new project story by passing project id
+```
+POST http://localhost/story-api/project/{id}/story
+```
+
 ## Gateway Block Schema
 
 ![alt tag](https://github.com/Estafet-LTD/estafet-microservices-scrum/blob/master/GatewayBlockSchema.jpg)
 
 ## Environment Variables
 ```
+ENABLE_TRACER = false
 PROJECT_GATEWAY_SERVICE_URI = http://gateway.microservices-scrum.svc:8080/project-api
 SPRINT_GATEWAY_SERVICE_URI = http://gateway.microservices-scrum.svc:8080/sprint-api
 STORY_GATEWAY_SERVICE_URI = http://gateway.microservices-scrum.svc:8080/story-api
