@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.camel.component.servlet.CamelHttpTransportServlet;
+import org.apache.camel.opentracing.starter.CamelOpenTracing;
 import org.apache.camel.spi.RestConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -19,12 +20,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.netflix.hystrix.contrib.metrics.eventstream.HystrixMetricsStreamServlet;
+
 @SpringBootApplication
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
+@CamelOpenTracing
 @EnableCircuitBreaker 
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	private static final String CAMEL_SERVLET_NAME = "CamelServlet";
@@ -32,6 +36,14 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ApiGatewayApplication.class, args);
+	}
+	
+	@Bean
+	public io.opentracing.Tracer jaegerTracer() {
+		return new com.uber.jaeger.Configuration("gateway",
+				com.uber.jaeger.Configuration.SamplerConfiguration.fromEnv(),
+				com.uber.jaeger.Configuration.ReporterConfiguration.fromEnv())
+				.getTracer();
 	}
 
 	@Bean
@@ -43,12 +55,12 @@ public class ApiGatewayApplication extends SpringBootServletInitializer {
 		return registration;
 	}
 
-//	@Bean
-//	public ServletRegistrationBean metricsServlet() {
-//		ServletRegistrationBean registration = new ServletRegistrationBean((Servlet) new HystrixEventStreamServlet(), HYSTRIX_URL_MAPPING);
-//		
-//		return registration;
-//	}
+	@Bean
+	public ServletRegistrationBean metricsServlet() {
+		ServletRegistrationBean registration = new ServletRegistrationBean(new HystrixMetricsStreamServlet(), HYSTRIX_URL_MAPPING);
+		
+		return registration;
+	}
 	
 	
 	private class CORSServlet extends CamelHttpTransportServlet {

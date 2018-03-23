@@ -16,7 +16,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import com.estafet.microservices.gateway.config.ApplicationProperties;
 import com.estafet.microservices.gateway.model.Sprint;
 import com.estafet.microservices.gateway.service.DiscoveryStewardService;
 
@@ -35,10 +34,7 @@ public class SprintRoute extends RouteBuilder {
 
 	@Autowired
 	private DiscoveryStewardService discoveryStewardService;
-	
-	@Autowired
-	private ApplicationProperties applicationProperties;
-	
+		
 	@Autowired
 	private Environment env;
 	
@@ -47,9 +43,9 @@ public class SprintRoute extends RouteBuilder {
 		LOGGER.info("- Initialize and configure /sprint route");
 		
 		try {
-			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER", "false")));	
+			getContext().setTracing(Boolean.parseBoolean(env.getProperty("ENABLE_TRACER")));	
 		} catch (Exception e) {
-			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER", "false"));
+			LOGGER.error("Failed to parse the ENABLE_TRACER value: {}", env.getProperty("ENABLE_TRACER"));
 		}
 		
 		restConfiguration().component("servlet")
@@ -78,7 +74,7 @@ public class SprintRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-		.setHeader(Exchange.HTTP_URI, simple(applicationProperties.getServices().get("sprint-api") + "/sprint/${header.id}"))
+		.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("sprint-api") + "/sprint/${header.id}"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
@@ -107,7 +103,7 @@ public class SprintRoute extends RouteBuilder {
 		.removeHeaders("CamelHttp*")
 		.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
 		.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
-		.setHeader(Exchange.HTTP_URI, simple(applicationProperties.getServices().get("sprint-api") + "/project/${header.id}/sprints"))
+		.setHeader(Exchange.HTTP_URI, simple(discoveryStewardService.getServiceUrl("sprint-api") + "/project/${header.id}/sprints"))
 		.to("http4://DUMMY")
 		.onFallback()
 			.setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
