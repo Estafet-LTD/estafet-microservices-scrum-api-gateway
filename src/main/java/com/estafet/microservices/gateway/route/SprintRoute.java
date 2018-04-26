@@ -82,7 +82,7 @@ public class SprintRoute extends RouteBuilder {
 		.end()
 			.setHeader("CamelJacksonUnmarshalType", simple(Sprint.class.getName())).unmarshal()
 			.json(JsonLibrary.Jackson, Sprint.class)
-		.endRest()
+		.endRest()		
 		
 		//Get all project sprints by project id
 		.get("/project/{id}/sprints")

@@ -1,7 +1,8 @@
-#spring:
-#  profiles:
-#      active:
+spring:
+  profiles:
+      active:
 #      - development
+#      - openshift-dev
        
 camel:
   springboot:
@@ -72,3 +73,32 @@ application:
     sprint-api:  http://localhost:8088
     story-api: http://localhost:8089
     task-api: http://localhost:8090
+    
+---
+
+spring:
+  profiles: openshift-dev
+  
+camel:
+  springboot:
+    jmx-enabled: false
+     
+eureka:
+  client:
+    healthCheck: 
+      enabled: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://discovery-microservices-scrum.192.168.99.100.nip.io/eureka}
+  instance:
+    preferIpAddress: true
+     
+server:
+  port: 8085
+ 
+application:
+  services:
+    project-api: http://project-api-microservices-scrum.192.168.99.100.nip.io
+    sprint-api:  http://estafet-microservices-scrum-sprint.192.168.99.100.nip.io
+    story-api: http://estafet-microservices-scrum-story.192.168.99.100.nip.io
+    task-api: http://estafet-microservices-scrum-task.192.168.99.100.nip.io
+  
