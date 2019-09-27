@@ -38,9 +38,3 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-.project
-.classpath
-.settings/
-.project
-.classpath
-.settings/
